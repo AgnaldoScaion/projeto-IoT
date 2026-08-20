@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trânsito Inteligente · Indaiatuba</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root{
+    --bg-0:#0A0D14;
+    --bg-1:#0F131C;
+    --panel:#131826;
+    --panel-raised:#1A2131;
+    --hairline:#232B3D;
+    --hairline-soft:#1B2232;
+    --text-hi:#E9EDF6;
+    --text-mid:#9AA6BC;
+    --text-low:#5E6A82;
+    --amber:#FF9F1C;
+    --amber-dim:#8A5715;
+    --amber-fill:rgba(255,159,28,0.10);
+    --green:#00D68F;
+    --green-fill:rgba(0,214,143,0.10);
+    --red:#FF3B4E;
+    --red-fill:rgba(255,59,78,0.12);
+    --blue:#3D8BFF;
+    --font-display:'Space Grotesk',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+    --font-body:'Inter',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(255,159,28,0.06), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(61,139,255,0.05), transparent 55%),
+      var(--bg-0);
+    color:var(--text-hi);
+    font-family:var(--font-body);
+    padding:20px;
+    min-height:100vh;
+  }
+  .wrap{max-width:1360px;margin:0 auto;}
+
+  /* ---- header ---- */
+  header{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    padding:0 4px 18px;border-bottom:1px solid var(--hairline);margin-bottom:20px;
+    flex-wrap:wrap;gap:14px;
+  }
+  .brand{display:flex;align-items:center;gap:14px;}
+  .brand-mark{
+    width:38px;height:38px;border:1.5px solid var(--amber);border-radius:8px;
+    display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;
+  }
+  .brand-mark::before{content:'';width:14px;height:14px;border:1.5px solid var(--amber);border-radius:50%;}
+  .brand-mark::after{content:'';position:absolute;width:2px;height:8px;background:var(--amber);top:4px;}
+  .brand-text h1{font-family:var(--font-display);font-size:19px;font-weight:600;letter-spacing:0.2px;}
+  .brand-text p{font-family:var(--font-mono);font-size:11px;color:var(--text-low);letter-spacing:0.5px;text-transform:uppercase;margin-top:2px;}
+  .hdr-right{display:flex;align-items:center;gap:22px;}
+  .hdr-stat{text-align:right;}
+  .hdr-stat .lbl{font-size:10px;color:var(--text-low);text-transform:uppercase;letter-spacing:0.6px;font-family:var(--font-mono);}
+  .hdr-stat .val{font-family:var(--font-mono);font-size:14px;color:var(--text-hi);margin-top:2px;}
+  .status-pill{
+    display:flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:11px;
+    padding:7px 12px;border:1px solid var(--hairline);border-radius:20px;color:var(--text-mid);
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);}
+  .dot.pulse{animation:pulse 2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
+
+  /* ---- layout grid ---- */
+  .grid{display:grid;grid-template-columns:280px 1fr 300px;gap:16px;}
+  @media (max-width:1100px){.grid{grid-template-columns:1fr;}}
+
+  .panel{
+    background:var(--panel);border:1px solid var(--hairline);border-radius:10px;
+    padding:16px 18px;
+  }
+  .panel-title{
+    font-family:var(--font-mono);font-size:11px;color:var(--text-low);
+    text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .panel-title .n{color:var(--amber);}
+
+  /* ---- KPI column ---- */
+  .kpi-col{display:flex;flex-direction:column;gap:14px;}
+  .kpi-card{background:var(--panel);border:1px solid var(--hairline);border-radius:10px;padding:16px 18px;}
+  .kpi-label{font-size:11px;color:var(--text-low);text-transform:uppercase;letter-spacing:0.6px;font-family:var(--font-mono);margin-bottom:8px;}
+  .kpi-value{font-family:var(--font-display);font-size:30px;font-weight:600;line-height:1;display:flex;align-items:baseline;gap:6px;}
+  .kpi-value .unit{font-family:var(--font-mono);font-size:13px;color:var(--text-mid);font-weight:400;}
+  .kpi-delta{font-family:var(--font-mono);font-size:11.5px;margin-top:8px;display:flex;align-items:center;gap:5px;}
+  .kpi-delta.up{color:var(--red);}
+  .kpi-delta.down{color:var(--green);}
+  .kpi-delta.flat{color:var(--text-mid);}
+
+  /* ---- risk gauge ---- */
+  .gauge-wrap{display:flex;flex-direction:column;align-items:center;padding-top:4px;}
+  .gauge-svg{width:100%;max-width:220px;}
+  .gauge-num{font-family:var(--font-display);font-size:42px;font-weight:700;color:var(--amber);text-align:center;margin-top:-58px;}
+  .gauge-sub{font-family:var(--font-mono);font-size:10.5px;color:var(--text-low);text-align:center;margin-top:2px;text-transform:uppercase;letter-spacing:0.6px;}
+  .gauge-tag{
+    margin-top:12px;font-family:var(--font-mono);font-size:11px;color:var(--amber);
+    border:1px solid var(--amber-dim);background:var(--amber-fill);padding:4px 12px;border-radius:20px;
+  }
+
+  /* ---- radar / street risk grid ---- */
+  .radar-box{position:relative;display:flex;align-items:center;justify-content:center;padding:6px 0 2px;}
+  .radar-legend{display:flex;gap:16px;justify-content:center;margin-top:10px;font-family:var(--font-mono);font-size:10.5px;color:var(--text-mid);flex-wrap:wrap;}
+  .radar-legend span{display:flex;align-items:center;gap:6px;}
+  .leg-dot{width:8px;height:8px;border-radius:50%;}
+
+  /* street list under radar */
+  .street-list{margin-top:16px;display:flex;flex-direction:column;gap:9px;}
+  .street-row{
+    display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;
+    padding:9px 10px;border:1px solid var(--hairline-soft);border-radius:7px;background:var(--panel-raised);
+  }
+  .street-row .name{font-size:12.5px;color:var(--text-hi);font-weight:500;}
+  .street-row .bairro{font-size:10.5px;color:var(--text-low);font-family:var(--font-mono);}
+  .street-row .risk-badge{
+    font-family:var(--font-mono);font-size:11px;font-weight:700;padding:3px 9px;border-radius:5px;text-align:center;min-width:34px;
+  }
+  .risk-critico{background:var(--red-fill);color:var(--red);}
+  .risk-atencao{background:var(--amber-fill);color:var(--amber);}
+  .risk-estavel{background:var(--green-fill);color:var(--green);}
+
+  /* ---- recommendations panel ---- */
+  .rec-card{
+    border:1px solid var(--hairline-soft);border-left:3px solid var(--amber);
+    background:var(--panel-raised);border-radius:0 8px 8px 0;padding:12px 13px;margin-bottom:10px;
+  }
+  .rec-card.prio-media{border-left-color:var(--blue);}
+  .rec-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  .rec-zone{font-size:12.5px;font-weight:600;color:var(--text-hi);}
+  .rec-prio{font-family:var(--font-mono);font-size:9.5px;text-transform:uppercase;letter-spacing:0.4px;padding:2px 7px;border-radius:4px;}
+  .prio-alta .rec-prio{background:var(--red-fill);color:var(--red);}
+  .prio-media .rec-prio{background:rgba(61,139,255,0.12);color:var(--blue);}
+  .rec-desc{font-size:12px;color:var(--text-mid);line-height:1.5;margin-bottom:6px;}
+  .rec-just{font-size:10.5px;color:var(--text-low);font-family:var(--font-mono);line-height:1.5;border-top:1px dashed var(--hairline);padding-top:6px;}
+
+  /* ---- bottom row ---- */
+  .bottom-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;margin-top:16px;}
+  @media (max-width:1100px){.bottom-grid{grid-template-columns:1fr;}}
+
+  .feed-row{
+    display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
+    padding:10px 4px;border-bottom:1px solid var(--hairline-soft);font-size:12px;
+  }
+  .feed-row:last-child{border-bottom:none;}
+  .feed-time{font-family:var(--font-mono);color:var(--text-low);font-size:11px;}
+  .feed-street{color:var(--text-hi);}
+  .feed-detail{font-family:var(--font-mono);font-size:10.5px;color:var(--text-mid);margin-top:2px;}
+  .feed-risk{font-family:var(--font-mono);font-weight:700;font-size:13px;}
+
+  footer{
+    margin-top:20px;padding:14px 4px 4px;border-top:1px solid var(--hairline);
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;
+    font-family:var(--font-mono);font-size:10.5px;color:var(--text-low);
+  }
+  footer .coi{color:var(--text-mid);}
+  footer .coi .dot{background:var(--text-low);box-shadow:none;}
+</style>
+<script type="application/json" id="data-architecture">
+{
+  "$schema": "trafego-iot-indaiatuba-v1",
+  "meta": {
+    "cidade": "Indaiatuba, SP",
+    "fase": "beta",
+    "fonte_dados": "mock_simulado",
+    "atualizado_em": "2026-08-19T08:42:00-03:00",
+    "hardware": "ESP32 + sensor ultrassônico (distância) + infravermelho (velocidade/presença)",
+    "integracao_futura": "COI - Centro de Operações Integradas (visão computacional, ANPR)"
+  },
+  "nos_sensores": [
+    {
+      "id": "ESP32-IND-014",
+      "rua": "Av. Presidente Kennedy",
+      "trecho": "km 3,2 - próx. Escola Municipal",
+      "lat": -23.0864,
+      "lng": -47.2181,
+      "status": "online",
+      "bateria_pct": 87,
+      "zona_escolar": true,
+      "sensores": {
+        "ultrassonico": {
+          "modelo": "HC-SR04",
+          "mede": "distancia_cm",
+          "status": "ok"
+        },
+        "infravermelho": {
+          "modelo": "IR-Speed-02",
+          "mede": "velocidade_kmh",
+          "status": "ok"
+        }
+      },
+      "ultima_leitura": "2026-08-19T08:41:52-03:00"
+    },
+    {
+      "id": "ESP32-IND-027",
+      "rua": "Rua Humaitá",
+      "trecho": "cruzamento c/ Rua Barão de Itaici",
+      "lat": -23.0921,
+      "lng": -47.2145,
+      "status": "online",
+      "bateria_pct": 62,
+      "zona_escolar": false,
+      "sensores": {
+        "ultrassonico": {
+          "modelo": "HC-SR04",
+          "mede": "distancia_cm",
+          "status": "ok"
+        },
+        "infravermelho": {
+          "modelo": "IR-Speed-02",
+          "mede": "velocidade_kmh",
+          "status": "degradado"
+        }
+      },
+      "ultima_leitura": "2026-08-19T08:41:47-03:00"
+    }
+  ],
+  "metricas_tempo_real": {
+    "indice_risco_colisao_global": {
+      "valor": 68,
+      "escala": "0-100",
+      "formula": "peso_frenagem(0.6) * severidade_desaceleracao + peso_proximidade(0.4) * (1 - distancia_normalizada)",
+      "tendencia": "subindo",
+      "variacao_1h_pct": 12
+    },
+    "velocidade_media_kmh": 41.5,
+    "fluxo_veiculos_atual_veic_min": 58,
+    "freadas_bruscas_hoje": 23,
+    "zonas_pedestres_em_alerta": 2
+  },
+  "zonas_criticas": [
+    {
+      "id": "zona-01",
+      "rua": "Av. Presidente Kennedy",
+      "bairro": "Centro",
+      "indice_risco": 82,
+      "freadas_bruscas_7d": 19,
+      "velocidade_media_kmh": 47,
+      "zona_pedestre": true,
+      "proximidade_escola": true,
+      "classificacao": "critico"
+    },
+    {
+      "id": "zona-02",
+      "rua": "Rua Humaitá",
+      "bairro": "Vila Almeida",
+      "indice_risco": 71,
+      "freadas_bruscas_7d": 14,
+      "velocidade_media_kmh": 52,
+      "zona_pedestre": false,
+      "proximidade_escola": false,
+      "classificacao": "atencao"
+    },
+    {
+      "id": "zona-03",
+      "rua": "Av. Engenheiro Fábio Roberto Barnabé",
+      "bairro": "Jardim Morada do Sol",
+      "indice_risco": 64,
+      "freadas_bruscas_7d": 11,
+      "velocidade_media_kmh": 58,
+      "zona_pedestre": false,
+      "proximidade_escola": false,
+      "classificacao": "atencao"
+    },
+    {
+      "id": "zona-04",
+      "rua": "Rua Barão de Itaici",
+      "bairro": "Centro",
+      "indice_risco": 39,
+      "freadas_bruscas_7d": 5,
+      "velocidade_media_kmh": 32,
+      "zona_pedestre": true,
+      "proximidade_escola": false,
+      "classificacao": "estavel"
+    },
+    {
+      "id": "zona-05",
+      "rua": "Av. Fernando Guerra Leal",
+      "bairro": "Jardim Esplanada II",
+      "indice_risco": 28,
+      "freadas_bruscas_7d": 3,
+      "velocidade_media_kmh": 38,
+      "zona_pedestre": false,
+      "proximidade_escola": false,
+      "classificacao": "estavel"
+    }
+  ],
+  "serie_fluxo_veiculos": {
+    "granularidade": "horaria",
+    "pontos": [
+      {
+        "hora": "06:00",
+        "fluxo_veic_min": 22,
+        "velocidade_media_kmh": 35
+      },
+      {
+        "hora": "07:00",
+        "fluxo_veic_min": 51,
+        "velocidade_media_kmh": 29
+      },
+      {
+        "hora": "08:00",
+        "fluxo_veic_min": 63,
+        "velocidade_media_kmh": 27
+      },
+      {
+        "hora": "09:00",
+        "fluxo_veic_min": 44,
+        "velocidade_media_kmh": 38
+      },
+      {
+        "hora": "10:00",
+        "fluxo_veic_min": 33,
+        "velocidade_media_kmh": 42
+      },
+      {
+        "hora": "11:00",
+        "fluxo_veic_min": 37,
+        "velocidade_media_kmh": 41
+      },
+      {
+        "hora": "12:00",
+        "fluxo_veic_min": 49,
+        "velocidade_media_kmh": 36
+      },
+      {
+        "hora": "13:00",
+        "fluxo_veic_min": 41,
+        "velocidade_media_kmh": 40
+      },
+      {
+        "hora": "14:00",
+        "fluxo_veic_min": 35,
+        "velocidade_media_kmh": 43
+      },
+      {
+        "hora": "15:00",
+        "fluxo_veic_min": 39,
+        "velocidade_media_kmh": 42
+      },
+      {
+        "hora": "16:00",
+        "fluxo_veic_min": 46,
+        "velocidade_media_kmh": 39
+      },
+      {
+        "hora": "17:00",
+        "fluxo_veic_min": 58,
+        "velocidade_media_kmh": 33
+      },
+      {
+        "hora": "18:00",
+        "fluxo_veic_min": 67,
+        "velocidade_media_kmh": 26
+      },
+      {
+        "hora": "19:00",
+        "fluxo_veic_min": 54,
+        "velocidade_media_kmh": 31
+      }
+    ]
+  },
+  "eventos_frenagem": [
+    {
+      "id": "evt-8841",
+      "timestamp": "2026-08-19T08:37:12-03:00",
+      "no_sensor": "ESP32-IND-014",
+      "rua": "Av. Presidente Kennedy",
+      "velocidade_antes_kmh": 58,
+      "velocidade_depois_kmh": 14,
+      "taxa_desaceleracao_ms2": 6.8,
+      "distancia_obstaculo_cm": 340,
+      "indice_risco_evento": 91,
+      "zona_pedestre": true
+    },
+    {
+      "id": "evt-8840",
+      "timestamp": "2026-08-19T08:22:04-03:00",
+      "no_sensor": "ESP32-IND-027",
+      "rua": "Rua Humaitá",
+      "velocidade_antes_kmh": 49,
+      "velocidade_depois_kmh": 22,
+      "taxa_desaceleracao_ms2": 4.1,
+      "distancia_obstaculo_cm": 610,
+      "indice_risco_evento": 58,
+      "zona_pedestre": false
+    },
+    {
+      "id": "evt-8839",
+      "timestamp": "2026-08-19T07:58:30-03:00",
+      "no_sensor": "ESP32-IND-014",
+      "rua": "Av. Presidente Kennedy",
+      "velocidade_antes_kmh": 52,
+      "velocidade_depois_kmh": 31,
+      "taxa_desaceleracao_ms2": 3.2,
+      "distancia_obstaculo_cm": 780,
+      "indice_risco_evento": 44,
+      "zona_pedestre": true
+    }
+  ],
+  "recomendacoes_preventivas": [
+    {
+      "id": "rec-01",
+      "prioridade": "alta",
+      "zona": "Av. Presidente Kennedy - próx. Escola Municipal",
+      "tipo": "sinalizacao_e_fiscalizacao",
+      "descricao": "Instalar lombada eletrônica e reforçar sinalização de zona escolar",
+      "justificativa": "19 freadas bruscas em 7 dias com 82% de índice de risco; alta incidência em horário de entrada/saída escolar"
+    },
+    {
+      "id": "rec-02",
+      "prioridade": "media",
+      "zona": "Rua Humaitá x Rua Barão de Itaici",
+      "tipo": "fiscalizacao",
+      "descricao": "Ampliar fiscalização de velocidade no cruzamento",
+      "justificativa": "Velocidade média 52 km/h acima do limite da via; 14 freadas bruscas em 7 dias"
+    },
+    {
+      "id": "rec-03",
+      "prioridade": "media",
+      "zona": "Av. Eng. Fábio Roberto Barnabé",
+      "tipo": "sinalizacao",
+      "descricao": "Revisar sinalização de redução de velocidade antes do trecho crítico",
+      "justificativa": "Velocidade média 58 km/h sustentada com tendência de alta no índice de risco"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-text">
+        <h1>Trânsito Inteligente · Indaiatuba</h1>
+        <p>Ecossistema IoT de segurança viária — fase beta</p>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="hdr-stat">
+        <div class="lbl">Sensores ativos</div>
+        <div class="val" id="sensorCount">18 / 20</div>
+      </div>
+      <div class="hdr-stat">
+        <div class="lbl">Horário local</div>
+        <div class="val" id="clock">--:--:--</div>
+      </div>
+      <div class="status-pill"><span class="dot pulse"></span>Rede ESP32 online</div>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- LEFT: KPIs -->
+    <div class="kpi-col">
+      <div class="kpi-card">
+        <div class="kpi-label">Velocidade média</div>
+        <div class="kpi-value">41,5<span class="unit">km/h</span></div>
+        <div class="kpi-delta up">↑ 3,2% vs. hora anterior</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Fluxo de veículos</div>
+        <div class="kpi-value">58<span class="unit">veíc/min</span></div>
+        <div class="kpi-delta down">↓ 6,1% vs. hora anterior</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Freadas bruscas hoje</div>
+        <div class="kpi-value">23<span class="unit">eventos</span></div>
+        <div class="kpi-delta up">↑ 4 nas últimas 2h</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Zonas de pedestres em alerta</div>
+        <div class="kpi-value">2<span class="unit">/ 9 zonas</span></div>
+        <div class="kpi-delta flat">estável</div>
+      </div>
+    </div>
+
+    <!-- CENTER: gauge + radar/heatmap -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="panel">
+        <div class="panel-title">Índice de risco de colisão <span class="n">· global</span></div>
+        <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;">
+          <div class="gauge-wrap" style="flex-shrink:0;">
+            <svg class="gauge-svg" viewBox="0 0 220 130">
+              <path d="M 20 110 A 90 90 0 0 1 200 110" fill="none" stroke="#1B2232" stroke-width="14" stroke-linecap="round"/>
+              <path id="gaugeArc" d="M 20 110 A 90 90 0 0 1 200 110" fill="none" stroke="#FF9F1C" stroke-width="14" stroke-linecap="round" stroke-dasharray="252" stroke-dashoffset="80"/>
+            </svg>
+            <div class="gauge-num">68</div>
+            <div class="gauge-sub">escala 0–100</div>
+            <div class="gauge-tag">risco elevado</div>
+          </div>
+          <div style="flex:1;min-width:220px;">
+            <p style="font-size:12.5px;color:var(--text-mid);line-height:1.7;">
+              Cálculo ponderado entre severidade de frenagem (60%) e proximidade de obstáculo (40%),
+              agregado dos 20 nós ESP32 ativos na malha viária monitorada.
+            </p>
+            <div style="margin-top:14px;font-family:var(--font-mono);font-size:11px;color:var(--text-low);display:flex;flex-direction:column;gap:6px;">
+              <div style="display:flex;justify-content:space-between;"><span>Peso frenagem</span><span style="color:var(--text-mid)">0.60</span></div>
+              <div style="display:flex;justify-content:space-between;"><span>Peso proximidade</span><span style="color:var(--text-mid)">0.40</span></div>
+              <div style="display:flex;justify-content:space-between;"><span>Tendência (1h)</span><span style="color:var(--red)">+12%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Varredura de zonas críticas <span class="n">· sensores ultrassônico + infravermelho</span></div>
+        <div class="radar-box">
+          <svg viewBox="0 0 400 400" style="width:100%;max-width:340px;" id="radarSvg"></svg>
+        </div>
+        <div class="radar-legend">
+          <span><span class="leg-dot" style="background:var(--red);"></span>crítico</span>
+          <span><span class="leg-dot" style="background:var(--amber);"></span>atenção</span>
+          <span><span class="leg-dot" style="background:var(--green);"></span>estável</span>
+        </div>
+
+        <div class="street-list">
+          <div class="street-row">
+            <div><div class="name">Av. Presidente Kennedy</div><div class="bairro">Centro · zona escolar</div></div>
+            <div class="bairro">19 freadas / 7d</div>
+            <div class="risk-badge risk-critico">82</div>
+          </div>
+          <div class="street-row">
+            <div><div class="name">Rua Humaitá</div><div class="bairro">Vila Almeida</div></div>
+            <div class="bairro">14 freadas / 7d</div>
+            <div class="risk-badge risk-atencao">71</div>
+          </div>
+          <div class="street-row">
+            <div><div class="name">Av. Eng. Fábio R. Barnabé</div><div class="bairro">Jd. Morada do Sol</div></div>
+            <div class="bairro">11 freadas / 7d</div>
+            <div class="risk-badge risk-atencao">64</div>
+          </div>
+          <div class="street-row">
+            <div><div class="name">Rua Barão de Itaici</div><div class="bairro">Centro · zona de pedestres</div></div>
+            <div class="bairro">5 freadas / 7d</div>
+            <div class="risk-badge risk-estavel">39</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: recommendations -->
+    <div class="panel">
+      <div class="panel-title">Recomendações preventivas <span class="n">· gestão pública</span></div>
+
+      <div class="rec-card prio-alta">
+        <div class="rec-top"><span class="rec-zone">Av. Pres. Kennedy</span><span class="rec-prio">alta</span></div>
+        <div class="rec-desc">Instalar lombada eletrônica e reforçar sinalização de zona escolar.</div>
+        <div class="rec-just">19 freadas bruscas em 7d · risco 82 · pico no horário escolar</div>
+      </div>
+
+      <div class="rec-card prio-media">
+        <div class="rec-top"><span class="rec-zone">Humaitá × Barão de Itaici</span><span class="rec-prio">média</span></div>
+        <div class="rec-desc">Ampliar fiscalização de velocidade no cruzamento.</div>
+        <div class="rec-just">vel. média 52 km/h · 14 freadas em 7d</div>
+      </div>
+
+      <div class="rec-card prio-media">
+        <div class="rec-top"><span class="rec-zone">Av. Eng. F. R. Barnabé</span><span class="rec-prio">média</span></div>
+        <div class="rec-desc">Revisar sinalização de redução de velocidade no trecho crítico.</div>
+        <div class="rec-just">vel. média 58 km/h · tendência de alta sustentada</div>
+      </div>
+
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--hairline);">
+        <div class="panel-title" style="margin-bottom:8px;">Integração COI <span class="n">· roadmap</span></div>
+        <p style="font-size:11.5px;color:var(--text-low);line-height:1.6;">
+          Próxima fase: visão computacional para leitura de placas (ANPR) e
+          contagem por tipo de veículo, cruzando eventos de frenagem com
+          imagem em tempo real do Centro de Operações Integradas.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM ROW -->
+  <div class="bottom-grid">
+    <div class="panel">
+      <div class="panel-title">Fluxo de veículos e velocidade média <span class="n">· últimas 14h</span></div>
+      <div style="position:relative;height:220px;">
+        <canvas id="flowChart" role="img" aria-label="Gráfico de linhas mostrando fluxo de veículos e velocidade média por hora, das 6h às 19h"></canvas>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Eventos de frenagem <span class="n">· ao vivo</span></div>
+      <div class="feed-row">
+        <div class="feed-time">08:37:12</div>
+        <div><div class="feed-street">Av. Pres. Kennedy</div><div class="feed-detail">58→14 km/h · 6,8 m/s² · 340 cm</div></div>
+        <div class="feed-risk" style="color:var(--red);">91</div>
+      </div>
+      <div class="feed-row">
+        <div class="feed-time">08:22:04</div>
+        <div><div class="feed-street">Rua Humaitá</div><div class="feed-detail">49→22 km/h · 4,1 m/s² · 610 cm</div></div>
+        <div class="feed-risk" style="color:var(--amber);">58</div>
+      </div>
+      <div class="feed-row">
+        <div class="feed-time">07:58:30</div>
+        <div><div class="feed-street">Av. Pres. Kennedy</div><div class="feed-detail">52→31 km/h · 3,2 m/s² · 780 cm</div></div>
+        <div class="feed-risk" style="color:var(--green);">44</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div>Fonte: dados simulados (mock) — padrões de tráfego urbano · fase beta</div>
+    <div class="coi"><span class="dot"></span>Integração COI: planejada — não conectada nesta fase</div>
+  </footer>
+
+</div>
+
+<script>
+function tick(){
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('pt-BR',{hour12:false});
+}
+tick();
+setInterval(tick,1000);
+
+const flowData = [
+  {h:'06:00',fluxo:22,vel:35},{h:'07:00',fluxo:51,vel:29},{h:'08:00',fluxo:63,vel:27},
+  {h:'09:00',fluxo:44,vel:38},{h:'10:00',fluxo:33,vel:42},{h:'11:00',fluxo:37,vel:41},
+  {h:'12:00',fluxo:49,vel:36},{h:'13:00',fluxo:41,vel:40},{h:'14:00',fluxo:35,vel:43},
+  {h:'15:00',fluxo:39,vel:42},{h:'16:00',fluxo:46,vel:39},{h:'17:00',fluxo:58,vel:33},
+  {h:'18:00',fluxo:67,vel:26},{h:'19:00',fluxo:54,vel:31}
+];
+
+new Chart(document.getElementById('flowChart'), {
+  type:'line',
+  data:{
+    labels:flowData.map(d=>d.h),
+    datasets:[
+      {
+        label:'Fluxo (veíc/min)',
+        data:flowData.map(d=>d.fluxo),
+        borderColor:'#FF9F1C',
+        backgroundColor:'rgba(255,159,28,0.08)',
+        fill:true,
+        tension:0.35,
+        pointRadius:0,
+        borderWidth:2,
+        yAxisID:'y'
+      },
+      {
+        label:'Velocidade média (km/h)',
+        data:flowData.map(d=>d.vel),
+        borderColor:'#3D8BFF',
+        backgroundColor:'transparent',
+        borderDash:[4,3],
+        fill:false,
+        tension:0.35,
+        pointRadius:0,
+        borderWidth:2,
+        yAxisID:'y1'
+      }
+    ]
+  },
+  options:{
+    responsive:true,
+    maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{
+        display:true,
+        position:'top',
+        align:'end',
+        labels:{color:'#9AA6BC',font:{family:'JetBrains Mono',size:10.5},boxWidth:10,boxHeight:10,padding:14}
+      },
+      tooltip:{
+        backgroundColor:'#1A2131',
+        titleColor:'#E9EDF6',
+        bodyColor:'#9AA6BC',
+        borderColor:'#232B3D',
+        borderWidth:1,
+        titleFont:{family:'JetBrains Mono',size:11},
+        bodyFont:{family:'JetBrains Mono',size:11},
+        padding:10
+      }
+    },
+    scales:{
+      x:{grid:{color:'#1B2232'},ticks:{color:'#5E6A82',font:{family:'JetBrains Mono',size:9.5}}},
+      y:{position:'left',grid:{color:'#1B2232'},ticks:{color:'#5E6A82',font:{family:'JetBrains Mono',size:9.5}},title:{display:true,text:'veíc/min',color:'#5E6A82',font:{family:'JetBrains Mono',size:9.5}}},
+      y1:{position:'right',grid:{display:false},ticks:{color:'#5E6A82',font:{family:'JetBrains Mono',size:9.5}},title:{display:true,text:'km/h',color:'#5E6A82',font:{family:'JetBrains Mono',size:9.5}}}
+    }
+  }
+});
+
+/* radar / sonar sweep grid representing street sensor coverage */
+(function(){
+  const svg = document.getElementById('radarSvg');
+  const ns = 'http://www.w3.org/2000/svg';
+  const cx=200, cy=200;
+  const rings=[60,110,160];
+  const zones=[
+    {angle:-40,r:150,risk:'critico',label:'Kennedy'},
+    {angle:20,r:120,risk:'atencao',label:'Humaitá'},
+    {angle:80,r:160,risk:'atencao',label:'Barnabé'},
+    {angle:140,r:90,risk:'estavel',label:'Barão'},
+    {angle:200,r:130,risk:'estavel',label:'F.Guerra'},
+    {angle:250,r:70,risk:'atencao',label:'sensor'},
+    {angle:310,r:150,risk:'estavel',label:'sensor'}
+  ];
+  const colors={critico:'#FF3B4E',atencao:'#FF9F1C',estavel:'#00D68F'};
+
+  rings.forEach(r=>{
+    const c=document.createElementNS(ns,'circle');
+    c.setAttribute('cx',cx);c.setAttribute('cy',cy);c.setAttribute('r',r);
+    c.setAttribute('fill','none');c.setAttribute('stroke','#1B2232');c.setAttribute('stroke-width','1');
+    svg.appendChild(c);
+  });
+  for(let a=0;a<360;a+=45){
+    const rad=a*Math.PI/180;
+    const line=document.createElementNS(ns,'line');
+    line.setAttribute('x1',cx);line.setAttribute('y1',cy);
+    line.setAttribute('x2',cx+Math.cos(rad)*160);line.setAttribute('y2',cy+Math.sin(rad)*160);
+    line.setAttribute('stroke','#1B2232');line.setAttribute('stroke-width','1');
+    svg.appendChild(line);
+  }
+  const sweep=document.createElementNS(ns,'path');
+  const sweepR=160;
+  sweep.setAttribute('d',`M ${cx} ${cy} L ${cx+sweepR} ${cy} A ${sweepR} ${sweepR} 0 0 1 ${cx+sweepR*Math.cos(Math.PI/6)} ${cy+sweepR*Math.sin(Math.PI/6)} Z`);
+  sweep.setAttribute('fill','rgba(255,159,28,0.10)');
+  const anim=document.createElementNS(ns,'animateTransform');
+  anim.setAttribute('attributeName','transform');
+  anim.setAttribute('type','rotate');
+  anim.setAttribute('from',`0 ${cx} ${cy}`);
+  anim.setAttribute('to',`360 ${cx} ${cy}`);
+  anim.setAttribute('dur','6s');
+  anim.setAttribute('repeatCount','indefinite');
+  sweep.appendChild(anim);
+  svg.appendChild(sweep);
+
+  const centerDot=document.createElementNS(ns,'circle');
+  centerDot.setAttribute('cx',cx);centerDot.setAttribute('cy',cy);centerDot.setAttribute('r',4);
+  centerDot.setAttribute('fill','#FF9F1C');
+  svg.appendChild(centerDot);
+
+  zones.forEach(z=>{
+    const rad=z.angle*Math.PI/180;
+    const x=cx+Math.cos(rad)*z.r, y=cy+Math.sin(rad)*z.r;
+    const dot=document.createElementNS(ns,'circle');
+    dot.setAttribute('cx',x);dot.setAttribute('cy',y);dot.setAttribute('r',z.risk==='critico'?7:5.5);
+    dot.setAttribute('fill',colors[z.risk]);
+    if(z.risk==='critico'){
+      const pulse=document.createElementNS(ns,'circle');
+      pulse.setAttribute('cx',x);pulse.setAttribute('cy',y);pulse.setAttribute('r',7);
+      pulse.setAttribute('fill','none');pulse.setAttribute('stroke',colors.critico);pulse.setAttribute('stroke-width','1.5');
+      const a1=document.createElementNS(ns,'animate');
+      a1.setAttribute('attributeName','r');a1.setAttribute('values','7;20;7');a1.setAttribute('dur','2s');a1.setAttribute('repeatCount','indefinite');
+      const a2=document.createElementNS(ns,'animate');
+      a2.setAttribute('attributeName','opacity');a2.setAttribute('values','0.8;0;0.8');a2.setAttribute('dur','2s');a2.setAttribute('repeatCount','indefinite');
+      pulse.appendChild(a1);pulse.appendChild(a2);
+      svg.appendChild(pulse);
+    }
+    svg.appendChild(dot);
+  });
+})();
+</script>
+</body>
+</html>
