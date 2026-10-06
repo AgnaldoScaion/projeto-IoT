@@ -2,8 +2,6 @@
 
 Ecossistema de IoT e Inteligência Artificial para previsibilidade de trânsito, prevenção de acidentes e segurança viária no município de Indaiatuba (SP).
 
-> **Fase atual:** Beta — dashboard com dados simulados (mock), pronta para receber dados reais dos sensores.
-
 ---
 
 ## 💡 Sobre o projeto
@@ -14,36 +12,27 @@ Sensores instalados nas vias coletam **velocidade**, **distância** e **taxa de 
 
 | Camada | Tecnologia |
 |---|---|
-| Hardware | ESP32 + sensor ultrassônico (distância) + infravermelho (velocidade) |
-| Dashboard | HTML + CSS + JavaScript (single file) |
+| Hardware | ESP32 + sensor ultrassônico (distância HC-SR04) + infravermelho (velocidade IR-Speed-02) |
+| Backend | Python 3.10+ (FastAPI + Server-Sent Events) |
+| Processamento | Algoritmo de filtragem de ruído e cálculo do Índice de Risco de Colisão |
+| Dashboard | HTML5 + CSS3 + JavaScript (Single File / Live Data) |
 | Gráficos | Chart.js |
-| Dados | JSON estruturado (mock, embutido no próprio HTML) |
 | Integração futura | COI — visão computacional / ANPR |
 
-## 📊 O que a dashboard mostra
+## 📊 Recursos da Dashboard
 
-- **Índice de risco de colisão** (frenagem × distância), em tempo real
-- **Mapa de zonas críticas** por rua, com histórico de freadas bruscas
-- **Fluxo de veículos e velocidade média** ao longo do dia
-- **Feed de eventos de frenagem** dos sensores
-- **Recomendações preventivas** para a gestão pública (lombadas, sinalização, fiscalização)
+- **Índice de risco de colisão** calculado via Python em tempo real
+- **Atualização contínua de fluxo e velocidade** sem recarregar a página
+- **Feed ao vivo de frenagens bruscas** transmitido via SSE
+- **Varredura de zonas críticas** por rua com indicativo de severidade
+- **Recomendações preventivas** automatizadas para a gestão pública
 
-## 🚀 Como usar
+## 🚀 Como executar o projeto
 
-Basta abrir o arquivo `dashboard-transito-indaiatuba.html` em qualquer navegador — não precisa de servidor, build ou instalação.
+### 1. Iniciar o Backend em Python
+
+Instale as dependências e inicie a API:
 
 ```bash
-open dashboard-transito-indaiatuba.html
-```
-
-Os dados mock usados na simulação ficam embutidos no próprio arquivo, dentro de uma tag `<script type="application/json" id="data-architecture">`, prontos para serem substituídos pela leitura real dos sensores ESP32.
-
-## 🗺️ Próximos passos
-
-- Substituir dados mock por leitura em tempo real via MQTT/HTTP dos ESP32
-- Conectar ao COI para cruzamento com visão computacional
-- Persistência histórica dos eventos para análise de tendências
-
----
-
-<sub>Projeto desenvolvido para Indaiatuba, SP.</sub>
+pip install fastapi uvicorn
+python main.py

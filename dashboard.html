@@ -48,7 +48,6 @@
   .wrap{max-width:1360px;margin:0 auto;}
   .chart-box{position:relative;height:220px;}
 
-  /* ---- header ---- */
   header{
     display:flex;justify-content:center;align-items:center;
     padding:0 4px 18px;border-bottom:1px solid var(--hairline);margin-bottom:20px;
@@ -75,7 +74,6 @@
   .dot.pulse{animation:pulse 2s ease-in-out infinite;}
   @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
 
-  /* ---- layout grid ---- */
   .grid{display:grid;grid-template-columns:280px 1fr 300px;gap:16px;}
   @media (max-width:1100px){.grid{grid-template-columns:1fr;}}
 
@@ -90,7 +88,6 @@
   }
   .panel-title .n{color:var(--amber);}
 
-  /* ---- KPI column ---- */
   .kpi-col{display:flex;flex-direction:column;gap:14px;}
   .kpi-card{background:var(--panel);border:1px solid var(--hairline);border-radius:10px;padding:16px 18px;}
   .kpi-label{font-size:11px;color:var(--text-low);text-transform:uppercase;letter-spacing:0.6px;font-family:var(--font-mono);margin-bottom:8px;}
@@ -101,7 +98,6 @@
   .kpi-delta.down{color:var(--green);}
   .kpi-delta.flat{color:var(--text-mid);}
 
-  /* ---- risk gauge ---- */
   .gauge-wrap{display:flex;flex-direction:column;align-items:center;padding-top:4px;}
   .gauge-svg{width:100%;max-width:220px;}
   .gauge-num{font-family:var(--font-display);font-size:42px;font-weight:700;color:var(--amber);text-align:center;margin-top:-58px;}
@@ -111,13 +107,11 @@
     border:1px solid var(--amber-dim);background:var(--amber-fill);padding:4px 12px;border-radius:20px;
   }
 
-  /* ---- radar / street risk grid ---- */
   .radar-box{position:relative;display:flex;align-items:center;justify-content:center;padding:6px 0 2px;}
   .radar-legend{display:flex;gap:16px;justify-content:center;margin-top:10px;font-family:var(--font-mono);font-size:10.5px;color:var(--text-mid);flex-wrap:wrap;}
   .radar-legend span{display:flex;align-items:center;gap:6px;}
   .leg-dot{width:8px;height:8px;border-radius:50%;}
 
-  /* street list under radar */
   .street-list{margin-top:16px;display:flex;flex-direction:column;gap:9px;}
   .street-row{
     display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;justify-items:center;text-align:center;
@@ -132,7 +126,6 @@
   .risk-atencao{background:var(--amber-fill);color:var(--amber);}
   .risk-estavel{background:var(--green-fill);color:var(--green);}
 
-  /* ---- recommendations panel ---- */
   .rec-card{
     border:1px solid var(--hairline-soft);border-left:3px solid var(--amber);
     background:var(--panel-raised);border-radius:0 8px 8px 0;padding:12px 13px;margin-bottom:10px;
@@ -146,7 +139,6 @@
   .rec-desc{font-size:12px;color:var(--text-mid);line-height:1.5;margin-bottom:6px;}
   .rec-just{font-size:10.5px;color:var(--text-low);font-family:var(--font-mono);line-height:1.5;border-top:1px dashed var(--hairline);padding-top:6px;}
 
-  /* ---- bottom row ---- */
   .bottom-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;margin-top:16px;}
   @media (max-width:1100px){.bottom-grid{grid-template-columns:1fr;}}
 
@@ -173,15 +165,11 @@
   footer .coi{color:var(--text-mid);}
   footer .coi .dot{background:var(--text-low);box-shadow:none;}
 
-  /* ============ RESPONSIVO ============ */
-
-  /* Tablet / telas médias */
   @media (max-width:1100px){
     .grid{grid-template-columns:1fr;}
     .kpi-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   }
 
-  /* Celulares grandes (iPhone Pro Max, etc.) */
   @media (max-width:640px){
     body{padding:12px;}
     header{align-items:flex-start;padding-bottom:14px;margin-bottom:16px;}
@@ -224,7 +212,6 @@
     footer{flex-direction:column;align-items:center;gap:6px;}
   }
 
-  /* Celulares pequenos / entrada (Galaxy J5, ~360px) */
   @media (max-width:400px){
     body{padding:8px;}
     .brand{gap:10px;}
@@ -260,7 +247,6 @@
     .chart-box{height:105px;}
   }
 
-  /* Telas bem largas: mais respiro */
   @media (min-width:1500px){
     .wrap{max-width:1520px;}
   }
@@ -270,8 +256,8 @@
   "$schema": "trafego-iot-indaiatuba-v1",
   "meta": {
     "cidade": "Indaiatuba, SP",
-    "fase": "beta",
-    "fonte_dados": "mock_simulado",
+    "fase": "producao_stream",
+    "fonte_dados": "telemetria_esp32_sse",
     "atualizado_em": "2026-08-19T08:42:00-03:00",
     "hardware": "ESP32 + sensor ultrassônico (distância) + infravermelho (velocidade/presença)",
     "integracao_futura": "COI - Centro de Operações Integradas (visão computacional, ANPR)"
@@ -287,16 +273,8 @@
       "bateria_pct": 87,
       "zona_escolar": true,
       "sensores": {
-        "ultrassonico": {
-          "modelo": "HC-SR04",
-          "mede": "distancia_cm",
-          "status": "ok"
-        },
-        "infravermelho": {
-          "modelo": "IR-Speed-02",
-          "mede": "velocidade_kmh",
-          "status": "ok"
-        }
+        "ultrassonico": { "modelo": "HC-SR04", "mede": "distancia_cm", "status": "ok" },
+        "infravermelho": { "modelo": "IR-Speed-02", "mede": "velocidade_kmh", "status": "ok" }
       },
       "ultima_leitura": "2026-08-19T08:41:52-03:00"
     },
@@ -310,16 +288,8 @@
       "bateria_pct": 62,
       "zona_escolar": false,
       "sensores": {
-        "ultrassonico": {
-          "modelo": "HC-SR04",
-          "mede": "distancia_cm",
-          "status": "ok"
-        },
-        "infravermelho": {
-          "modelo": "IR-Speed-02",
-          "mede": "velocidade_kmh",
-          "status": "degradado"
-        }
+        "ultrassonico": { "modelo": "HC-SR04", "mede": "distancia_cm", "status": "ok" },
+        "infravermelho": { "modelo": "IR-Speed-02", "mede": "velocidade_kmh", "status": "degradado" }
       },
       "ultima_leitura": "2026-08-19T08:41:47-03:00"
     }
@@ -397,76 +367,20 @@
   "serie_fluxo_veiculos": {
     "granularidade": "horaria",
     "pontos": [
-      {
-        "hora": "06:00",
-        "fluxo_veic_min": 22,
-        "velocidade_media_kmh": 35
-      },
-      {
-        "hora": "07:00",
-        "fluxo_veic_min": 51,
-        "velocidade_media_kmh": 29
-      },
-      {
-        "hora": "08:00",
-        "fluxo_veic_min": 63,
-        "velocidade_media_kmh": 27
-      },
-      {
-        "hora": "09:00",
-        "fluxo_veic_min": 44,
-        "velocidade_media_kmh": 38
-      },
-      {
-        "hora": "10:00",
-        "fluxo_veic_min": 33,
-        "velocidade_media_kmh": 42
-      },
-      {
-        "hora": "11:00",
-        "fluxo_veic_min": 37,
-        "velocidade_media_kmh": 41
-      },
-      {
-        "hora": "12:00",
-        "fluxo_veic_min": 49,
-        "velocidade_media_kmh": 36
-      },
-      {
-        "hora": "13:00",
-        "fluxo_veic_min": 41,
-        "velocidade_media_kmh": 40
-      },
-      {
-        "hora": "14:00",
-        "fluxo_veic_min": 35,
-        "velocidade_media_kmh": 43
-      },
-      {
-        "hora": "15:00",
-        "fluxo_veic_min": 39,
-        "velocidade_media_kmh": 42
-      },
-      {
-        "hora": "16:00",
-        "fluxo_veic_min": 46,
-        "velocidade_media_kmh": 39
-      },
-      {
-        "hora": "17:00",
-        "fluxo_veic_min": 58,
-        "velocidade_media_kmh": 33
-      },
-      {
-        "hora": "18:00",
-        "fluxo_veic_min": 67,
-        "velocidade_media_kmh": 26
-      },
-      {
-        "hora": "19:00",
-        "fluxo_veic_min": 54,
-        "velocidade_media_kmh": 31
-      }
+      { "hora": "06:00", "fluxo_veic_min": 22, "velocidade_media_kmh": 35 },
+      { "hora": "07:00", "fluxo_veic_min": 51, "velocidade_media_kmh": 29 },
+      { "hora": "08:00", "fluxo_veic_min": 63, "velocidade_media_kmh": 27 },
+      { "hora": "09:00", "fluxo_veic_min": 44, "velocidade_media_kmh": 38 },
+      { "hora": "10:00", "fluxo_veic_min": 33, "velocidade_media_kmh": 42 },
+      { "hora": "11:00", "fluxo_veic_min": 37, "velocidade_media_kmh": 41 },
+      { "hora": "12:00", "fluxo_veic_min": 49, "velocidade_media_kmh": 36 },
+      { "hora": "13:00", "fluxo_veic_min": 41, "velocidade_media_kmh": 40 },
+      { "hora": "14:00", "fluxo_veic_min": 35, "velocidade_media_kmh": 43 },
+      { "hora": "15:00", "fluxo_veic_min": 39, "velocidade_media_kmh": 42 },
+      { "hora": "16:00", "fluxo_veic_min": 46, "velocidade_media_kmh": 39 },
+      { "hora": "17:00", "fluxo_veic_min": 58, "velocidade_media_kmh": 33 },
+      { "hora": "18:00", "fluxo_veic_min": 67, "velocidade_media_kmh": 26 },
+      { "hora": "19:00", "fluxo_veic_min": 54, "velocidade_media_kmh": 31 }
     ]
   },
   "eventos_frenagem": [
@@ -544,7 +458,7 @@
       <div class="brand-mark"></div>
       <div class="brand-text">
         <h1>Trânsito Inteligente · Indaiatuba</h1>
-        <p>Ecossistema IoT de segurança viária — fase beta</p>
+        <p>Ecossistema IoT de segurança viária — tempo real</p>
       </div>
     </div>
     <div class="hdr-right">
@@ -562,7 +476,6 @@
 
   <div class="grid">
 
-    <!-- LEFT: KPIs -->
     <div class="kpi-col">
       <div class="kpi-card">
         <div class="kpi-label">Velocidade média</div>
@@ -586,7 +499,6 @@
       </div>
     </div>
 
-    <!-- CENTER: gauge + radar/heatmap -->
     <div style="display:flex;flex-direction:column;gap:16px;">
       <div class="panel">
         <div class="panel-title">Índice de risco de colisão <span class="n">· global</span></div>
@@ -650,7 +562,6 @@
       </div>
     </div>
 
-    <!-- RIGHT: recommendations -->
     <div class="panel">
       <div class="panel-title">Recomendações preventivas <span class="n">· gestão pública</span></div>
 
@@ -683,12 +594,11 @@
     </div>
   </div>
 
-  <!-- BOTTOM ROW -->
   <div class="bottom-grid">
     <div class="panel">
-      <div class="panel-title">Fluxo de veículos e velocidade média <span class="n">· últimas 14h</span></div>
+      <div class="panel-title">Fluxo de veículos e velocidade média <span class="n">· ao vivo</span></div>
       <div class="chart-box">
-        <canvas id="flowChart" role="img" aria-label="Gráfico de linhas mostrando fluxo de veículos e velocidade média por hora, das 6h às 19h"></canvas>
+        <canvas id="flowChart" role="img" aria-label="Gráfico de linhas mostrando fluxo de veículos e velocidade média por hora"></canvas>
       </div>
     </div>
     <div class="panel">
@@ -712,7 +622,7 @@
   </div>
 
   <footer>
-    <div>Fonte: dados simulados (mock) — padrões de tráfego urbano · fase beta</div>
+    <div>Fonte: telemetria ESP32 via backend Python — tráfego urbano Indaiatuba</div>
     <div class="coi"><span class="dot"></span>Integração COI: planejada — não conectada nesta fase</div>
   </footer>
 
@@ -737,7 +647,7 @@ const flowData = [
 const isSmall = window.innerWidth <= 640;
 const isTiny = window.innerWidth <= 400;
 
-new Chart(document.getElementById('flowChart'), {
+const flowChart = new Chart(document.getElementById('flowChart'), {
   type:'line',
   data:{
     labels:flowData.map(d=>d.h),
@@ -817,7 +727,6 @@ new Chart(document.getElementById('flowChart'), {
   }
 });
 
-/* radar / sonar sweep grid representing street sensor coverage */
 (function(){
   const svg = document.getElementById('radarSvg');
   const ns = 'http://www.w3.org/2000/svg';
@@ -887,6 +796,69 @@ new Chart(document.getElementById('flowChart'), {
     svg.appendChild(dot);
   });
 })();
+
+function connectSSE(){
+  const eventSource = new EventSource('http://localhost:8000/api/v1/stream');
+  eventSource.onmessage = function(e){
+    try {
+      const data = JSON.parse(e.data);
+      if(data.velocidade_media !== undefined){
+        const el = document.querySelector('.kpi-card:nth-child(1) .kpi-value');
+        if(el) el.childNodes[0].textContent = data.velocidade_media.toString().replace('.', ',');
+      }
+      if(data.fluxo_veiculos !== undefined){
+        const el = document.querySelector('.kpi-card:nth-child(2) .kpi-value');
+        if(el) el.childNodes[0].textContent = data.fluxo_veiculos;
+      }
+      if(data.freadas_hoje !== undefined){
+        const el = document.querySelector('.kpi-card:nth-child(3) .kpi-value');
+        if(el) el.childNodes[0].textContent = data.freadas_hoje;
+      }
+      if(data.risco_global !== undefined){
+        const numEl = document.querySelector('.gauge-num');
+        if(numEl) numEl.textContent = data.risco_global;
+        const arc = document.getElementById('gaugeArc');
+        if(arc){
+          const offset = 252 - (252 * (data.risco_global / 100));
+          arc.style.strokeDashoffset = offset;
+        }
+      }
+      if(data.ponto_grafico){
+        flowChart.data.labels.push(data.ponto_grafico.hora);
+        flowChart.data.datasets[0].data.push(data.ponto_grafico.fluxo);
+        flowChart.data.datasets[1].data.push(data.ponto_grafico.vel);
+        if(flowChart.data.labels.length > 14){
+          flowChart.data.labels.shift();
+          flowChart.data.datasets[0].data.shift();
+          flowChart.data.datasets[1].data.shift();
+        }
+        flowChart.update('none');
+      }
+      if(data.evento_frenagem){
+        const feedContainer = document.querySelector('.bottom-grid .panel:nth-child(2)');
+        if(feedContainer){
+          const row = document.createElement('div');
+          row.className = 'feed-row';
+          const r = data.evento_frenagem;
+          const colorClass = r.risco >= 75 ? 'color:var(--red);background:var(--red-fill);' : (r.risco >= 50 ? 'color:var(--amber);background:var(--amber-fill);' : 'color:var(--green);background:var(--green-fill);');
+          row.innerHTML = `<div class="feed-time">${r.horario}</div><div><div class="feed-street">${r.rua}</div><div class="feed-detail">${r.vel_antes}→${r.vel_depois} km/h · ${r.decel} m/s² · ${r.dist} cm</div></div><div class="feed-risk" style="${colorClass}">${r.risco}</div>`;
+          const rows = feedContainer.querySelectorAll('.feed-row');
+          if(rows.length > 0){
+            feedContainer.insertBefore(row, rows[0]);
+            if(rows.length >= 5) rows[rows.length - 1].remove();
+          } else {
+            feedContainer.appendChild(row);
+          }
+        }
+      }
+    } catch(err){}
+  };
+  eventSource.onerror = function(){
+    eventSource.close();
+    setTimeout(connectSSE, 3000);
+  };
+}
+connectSSE();
 </script>
 </body>
 </html>
