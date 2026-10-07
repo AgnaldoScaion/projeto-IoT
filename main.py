@@ -5,7 +5,7 @@ import random
 import time
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
 
 app = FastAPI(title="Trânsito Inteligente Indaiatuba - API")
 
@@ -125,6 +125,10 @@ async def telemetry_event_generator():
 
         yield f"data: {json.dumps(payload)}\n\n"
         await asyncio.sleep(2.5)
+
+@app.get("/")
+async def get_dashboard():
+    return FileResponse("dashboard.html")
 
 @app.get("/api/v1/stream")
 async def stream_live_data():

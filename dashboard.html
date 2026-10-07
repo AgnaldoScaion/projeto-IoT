@@ -798,7 +798,7 @@ const flowChart = new Chart(document.getElementById('flowChart'), {
 })();
 
 function connectSSE(){
-  const eventSource = new EventSource('http://localhost:8000/api/v1/stream');
+  const eventSource = new EventSource('/api/v1/stream');
   eventSource.onmessage = function(e){
     try {
       const data = JSON.parse(e.data);

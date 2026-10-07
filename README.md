@@ -12,27 +12,15 @@ Sensores instalados nas vias coletam **velocidade**, **distância** e **taxa de 
 
 | Camada | Tecnologia |
 |---|---|
-| Hardware | ESP32 + sensor ultrassônico (distância HC-SR04) + infravermelho (velocidade IR-Speed-02) |
+| Hardware | ESP32 + sensor ultrassônico (HC-SR04) + infravermelho (IR-Speed-02) |
 | Backend | Python 3.10+ (FastAPI + Server-Sent Events) |
 | Processamento | Algoritmo de filtragem de ruído e cálculo do Índice de Risco de Colisão |
-| Dashboard | HTML5 + CSS3 + JavaScript (Single File / Live Data) |
+| Dashboard | HTML5 + CSS3 + JavaScript (Single File / Live Data via SSE) |
 | Gráficos | Chart.js |
-| Integração futura | COI — visão computacional / ANPR |
+| Hospedagem | Render.com (Web Service Gratuito) |
 
-## 📊 Recursos da Dashboard
+## 🚀 Como executar localmente
 
-- **Índice de risco de colisão** calculado via Python em tempo real
-- **Atualização contínua de fluxo e velocidade** sem recarregar a página
-- **Feed ao vivo de frenagens bruscas** transmitido via SSE
-- **Varredura de zonas críticas** por rua com indicativo de severidade
-- **Recomendações preventivas** automatizadas para a gestão pública
-
-## 🚀 Como executar o projeto
-
-### 1. Iniciar o Backend em Python
-
-Instale as dependências e inicie a API:
-
-```bash
-pip install fastapi uvicorn
-python main.py
+1. Instale as dependências necessárias:
+   ```bash
+   pip install -r requirements.txt
